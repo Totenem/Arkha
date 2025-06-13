@@ -1,0 +1,59 @@
+{
+  "extraction_message": "Text extraction successful.",
+  "important_info": {
+    "name": "Michael Ashley Ygaña",
+    "email": "yganamichaelashley@gmail.com",
+    "phone_number": "+639755610436",
+    "education": [
+      {
+        "school": "CITY COLLEGE OF CALAMBA",
+        "degree": "Bachelor of Science in Computer Science",
+        "duration": "August 2022 - Present"
+      },
+      {
+        "school": "TRACE COLLEGE",
+        "degree": "Senior High School",
+        "strand": "Science Technology Engineering Mathematics",
+        "duration": "July 2020 - August 2022",
+        "honors": "With Honors"
+      }
+    ],
+    "work_experience": [
+      {
+        "company": "ReUseWrite",
+        "position": "Full-Stack Developer",
+        "responsibilities": [
+          "Created an AI-powered web app that enables users to rewrite and repurpose text up to 10x faster",
+          "Engineered the full stack using React, Next.js, FastAPI, and Groq",
+          "Deployed on Vercel, with backend hosted via scalable API services"
+        ]
+      },
+      {
+        "company": "Pathfinder CCC",
+        "position": "Frontend Developer",
+        "responsibilities": [
+          "Built a mobile indoor navigation app for City College of Calamba",
+          "Designed and implemented a user interface that reduced navigation time by 60%",
+          "Developed using React Native, Expo, and Firebase"
+        ]
+      }
+    ],
+    "skills": {
+      "programming": [
+        "C",
+        "C++",
+        "Python",
+        "MATLAB",
+        "JavaScript",
+        "PHP",
+        "Java",
+        "REACT",
+        "Node.js"
+      ],
+      "design": [
+        "Figma"
+      ]
+    }
+  },
+  "score": "42% fit"
+}
