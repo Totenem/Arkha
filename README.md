@@ -61,10 +61,11 @@ arkha/
 ├── requirements.txt    # Backend dependencies
 ├── .env               # Backend environment variables
 ├── frontend/          # React frontend application
-│   ├── src/          # Source files
+│   ├── app/          # Source files
+|   ├── components/   # Reusable React components
+|   ├── lib/          # Utility libraries and helper functions
 │   ├── public/       # Static files
 │   ├── package.json  # Frontend dependencies
-│   └── .env         # Frontend environment variables
 ├── LICENSE           # MIT License
 └── README.md         # Project documentation
 ```
@@ -97,10 +98,6 @@ uvicorn main:app --reload
 cd frontend
 npm install
 ```
-- Create a `.env` file:
-```env
-REACT_APP_API_URL=http://localhost:8000
-```
 - Start the development server:
 ```bash
 npm start
@@ -111,7 +108,6 @@ npm start
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST   | `/get-assess` | Analyze resume against job description |
-| GET    | `/health` | Check API health status |
 
 ## 💡 Tips
 
