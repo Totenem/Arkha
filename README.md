@@ -1,4 +1,4 @@
-# <h1 align="center">Arkha - AI-Powered Resume Analysis Platform</h1>
+# <h1 align="center">Arkha - AI-Powered Resume & Cover Letter Optimization Platform</h1>
 
 <div align="center">
 
@@ -13,33 +13,41 @@
 
 <h2 align="center">🚀 Project Overview</h2>
 
-> **Arkha** is a modern, full-stack web application that helps job seekers optimize their resumes and cover letters. Built with ❤️ using FastAPI, React, and Groq's AI capabilities, it provides real-time resume analysis, job matching, and improvement suggestions to help users land their dream jobs.
+> **Arkha** is a modern, full-stack web application that helps job seekers optimize their resumes and cover letters. Built with ❤️ using FastAPI, React, and Groq's AI capabilities, it provides real-time resume analysis, job matching, improvement suggestions, and cover letter generation to help users land their dream jobs.
+
 
 ## ✨ Features
 
 ### Backend API
-- 🔍 Smart information extraction from resumes and cover letters
+- 🔍 Smart information extraction from resumes and job descriptions
 - 🎯 Job description matching with percentage score
 - 💡 AI-powered improvement suggestions
+- 📝 Automatic cover letter generation
 - 🧹 Efficient temporary file handling
 - 🔒 Secure API key management
 - ⚡ Fast and reliable processing
+- 🎯 Industry-specific resume analysis
 
 ### Frontend Interface
-- 🎨 Modern, responsive design
+- 🎨 Modern, responsive design with Tailwind CSS
 - 📱 Mobile-friendly interface
 - 🔄 Real-time analysis feedback
 - 📊 Visual match score representation
 - 📝 Interactive improvement suggestions
 - 🎯 Job description input interface
-- 📤 Easy file upload system
+- 📤 Drag-and-drop file upload system
+- 🔍 Detailed resume analysis with tabbed interface
+- 📋 Organized display of skills, education, and experience
+- 💼 Industry sector selection
+- 📄 One-click cover letter copying
+- 🎭 Accordion-style detailed information display
 
 ## 🛠️ Tech Stack
 
 | Frontend | Backend | AI/ML | UI/UX |
 |----------|---------|-------|-------|
 | ![React](https://img.shields.io/badge/React-61DAFB?logo=react) | ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi) | ![Groq](https://img.shields.io/badge/Groq-00A67E?logo=openai) | ![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss) |
-| React, TypeScript | Python | Groq API | Material-UI, React Icons |
+| React, TypeScript, Next.js | Python, PyMuPDF | Groq LLaMA API | Tailwind CSS, Shadcn UI |
 
 ## 📁 Project Structure
 
@@ -124,4 +132,4 @@ For questions or support, open an issue on GitHub or contact the maintainer.
 
 ## 📝 License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](LICENSE) 
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](LICENSE)

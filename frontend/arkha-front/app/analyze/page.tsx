@@ -16,6 +16,7 @@ export default function AnalyzePage() {
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState("")
+  const [sector, setSector] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<any | null>(null)
@@ -63,6 +64,11 @@ export default function AnalyzePage() {
       return
     }
 
+    if (!sector) {
+      setError("Please select a job sector")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -70,7 +76,7 @@ export default function AnalyzePage() {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch(`http://localhost:8000/get-assess?job_description=${encodeURIComponent(jobDescription)}`, {
+      const response = await fetch(`http://localhost:8000/get-assess?job_description=${encodeURIComponent(jobDescription)}&sector=${encodeURIComponent(sector)}`, {
         method: "POST",
         body: formData,
       })
@@ -170,6 +176,33 @@ export default function AnalyzePage() {
                     onChange={(e) => setJobDescription(e.target.value)}
                     className="min-h-[200px] border-gray-300 focus:border-[#A6B1E1] focus:ring-[#A6B1E1]"
                   />
+                </div>
+
+                <div className="mb-6">
+                  <label htmlFor="sector" className="block text-sm font-medium text-[#4E4C67] mb-2">
+                    Resume Type
+                  </label>
+                  <select
+                    id="sector"
+                    value={sector}
+                    onChange={(e) => setSector(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 focus:border-[#A6B1E1] focus:ring-[#A6B1E1] p-2"
+                    required
+                  >
+                    <option value="">Select a type</option>
+                    <option value="software_engineering">Software Engineering</option>
+                    <option value="data_science">Data Science & Analytics</option>
+                    <option value="engineering">Engineering</option>
+                    <option value="finance">Finance & Banking</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="marketing">Marketing & Communications</option>
+                    <option value="sales">Sales</option>
+                    <option value="hr">Human Resources</option>
+                    <option value="education">Education</option>
+                    <option value="legal">Legal</option>
+                    <option value="creative">Creative & Design</option>
+                    <option value="operations">Operations & Logistics</option>
+                  </select>
                 </div>
 
                 <div className="flex justify-center">

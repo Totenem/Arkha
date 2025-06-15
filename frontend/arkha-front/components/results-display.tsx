@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { User, Mail, Phone, GraduationCap, Briefcase, Code, XCircle } from "lucide-react"
+import { Award, Book, Briefcase, Captions, Languages, GraduationCap, Mail, Phone, Star, User, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
@@ -18,22 +18,29 @@ interface ResultsDisplayProps {
         duration: string
         relevant_coursework?: string[]
       }>
-      technical_skills: {
-        programming: string[]
-        design: string[]
-      }
+      skills: string[]
+      languages: string[]
+      licenses: Array<string | { license: string }>
       work_experience: Array<{
         company: string
         position: string
-        responsibilities: string[]
+        date: string
+        description: string[]
       }>
     }
     score: string
+    cover_letter: string
     improvements: string[]
   }
 }
 
 export default function ResultsDisplay({ results }: ResultsDisplayProps) {
+  const handleCopy = () => {
+    navigator.clipboard.writeText(results.cover_letter)
+      .then(() => alert("Cover letter copied to clipboard!"))
+      .catch(() => alert("Failed to copy cover letter."));
+  }
+  
   const [activeTab, setActiveTab] = useState("overview")
   const scoreValue = Number.parseInt(results.score.replace(/\D/g, ""))
 
@@ -85,6 +92,16 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
             }`}
           >
             Improvements
+          </button>
+          <button
+            onClick={() => setActiveTab("coverLetter")}
+            className={`py-4 px-6 text-sm font-medium border-b-2 ${
+              activeTab === "coverLetter"
+                ? "border-[#985F6F] text-[#985F6F]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Cover Letter
           </button>
         </nav>
       </div>
@@ -138,113 +155,162 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
                   </div>
                 </div>
                 <div className="flex items-center p-4 bg-[#DCD6F7]/20 rounded-lg">
-                  <Code className="h-5 w-5 text-[#4E4C67] mr-3" />
+                  <Star className="h-5 w-5 text-[#4E4C67] mr-3" />
                   <div>
                     <div className="text-sm text-gray-500">Top Skills</div>
                     <div className="font-medium">
-                      {(results.important_info.technical_skills?.programming ?? []).slice(0, 3).join(", ")}
+                      {Array.isArray(results.important_info.skills)
+                        ? results.important_info.skills.slice(0, 3).join(", ")
+                        : Object.values(results.important_info.skills ?? {})
+                            .flat()
+                            .slice(0, 3)
+                            .join(", ")}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-medium text-[#4E4C67] mb-4">Top Improvement Suggestions</h3>
-              <ul className="space-y-2">
-                {results.improvements.slice(0, 3).map((improvement, index) => (
-                  <li key={index} className="flex items-start">
-                    <XCircle className="h-5 w-5 text-[#985F6F] mr-2 flex-shrink-0 mt-0.5" />
-                    <span>{improvement}</span>
-                  </li>
-                ))}
-              </ul>
-              {results.improvements.length > 3 && (
-                <Button variant="link" className="text-[#985F6F] p-0 mt-2" onClick={() => setActiveTab("improvements")}>
-                  View all suggestions
-                </Button>
-              )}
-            </div>
+            {/* In the details tab, update the skills section: */}
+            <Accordion type="single" collapsible>
+              <AccordionItem value="skills">
+                <AccordionTrigger className="text-[#4E4C67]">
+                  <div className="flex items-center">
+                    <Star className="h-5 w-5 mr-2" />
+                    Skills
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-wrap gap-2">
+                  {Array.isArray(results.important_info.skills)
+                    ? (results.important_info.skills ?? []).map((skill, index) => (
+                        <span key={index} className="px-3 py-1 bg-[#DCD6F7]/30 text-[#4E4C67] rounded-full text-sm">
+                          {skill}
+                        </span>
+                      ))
+                    : Object.entries(results.important_info.skills ?? {}).flatMap(([category, skills]) =>
+                        (skills as string[]).map((skill, index) => (
+                          <span key={`${category}-${index}`} className="px-3 py-1 bg-[#DCD6F7]/30 text-[#4E4C67] rounded-full text-sm">
+                            {skill}
+                          </span>
+                        ))
+                      )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="languages">
+                <AccordionTrigger className="text-[#4E4C67]">
+                  <div className="flex items-center">
+                    <Languages className="h-5 w-5 mr-2" />
+                    Languages
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-wrap gap-2">
+                    {(results.important_info.languages ?? []).map((language, index) => (
+                      <span key={index} className="px-3 py-1 bg-[#A6B1E1]/30 text-[#4E4C67] rounded-full text-sm">
+                        {language}
+                      </span>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="licenses">
+                <AccordionTrigger className="text-[#4E4C67]">
+                  <div className="flex items-center">
+                    <Captions className="h-5 w-5 mr-2" />
+                    Licenses & Certifications
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-wrap gap-2">
+                  {(results.important_info.licenses ?? []).map((license, index) => {
+                      const text = typeof license === "string" ? license : license.license || "Unknown License"
+                      return (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-[#B4869F]/30 text-[#4E4C67] rounded-full text-sm"
+                        >
+                          {text}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         )}
 
         {activeTab === "details" && (
           <div>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="education">
-                <AccordionTrigger className="text-[#4E4C67]">
-                  <div className="flex items-center">
-                    <GraduationCap className="h-5 w-5 mr-2" />
-                    Education
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  {results.important_info.education.map((edu, index) => (
-                    <div key={index} className="mb-4 last:mb-0">
-                      <div className="font-medium">{edu.school}</div>
-                      <div>{edu.degree}</div>
-                      <div className="text-sm text-gray-500">{edu.duration}</div>
-                      {edu.relevant_coursework && (
-                        <div className="mt-2">
-                          <div className="text-sm font-medium">Relevant Coursework:</div>
-                          <div className="text-sm text-gray-600">{edu.relevant_coursework.join(", ")}</div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="experience">
-                <AccordionTrigger className="text-[#4E4C67]">
-                  <div className="flex items-center">
-                    <Briefcase className="h-5 w-5 mr-2" />
-                    Work Experience
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  {results.important_info.work_experience.map((exp, index) => (
-                    <div key={index} className="mb-6 last:mb-0">
-                      <div className="font-medium">{exp.position}</div>
-                      <div>{exp.company}</div>
-                      <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-                        {(exp.responsibilities ?? []).map((responsibility, i) => (
-                          <li key={i}>{responsibility}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-
+            <Accordion type="single" collapsible>
               <AccordionItem value="skills">
                 <AccordionTrigger className="text-[#4E4C67]">
                   <div className="flex items-center">
-                    <Code className="h-5 w-5 mr-2" />
-                    Technical Skills
+                    <Star className="h-5 w-5 mr-2" />
+                    Skills
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="mb-4">
-                    <div className="font-medium mb-2">Programming Languages & Technologies</div>
-                    <div className="flex flex-wrap gap-2">
-                      {(results.important_info.technical_skills?.programming ?? []).map((skill, index) => (
+                  <div className="flex flex-wrap gap-2">
+                  {Array.isArray(results.important_info.skills)
+                    ? (results.important_info.skills ?? []).map((skill, index) => (
                         <span key={index} className="px-3 py-1 bg-[#DCD6F7]/30 text-[#4E4C67] rounded-full text-sm">
                           {skill}
                         </span>
-                      ))}
-                    </div>
+                      ))
+                    : Object.entries(results.important_info.skills ?? {}).flatMap(([category, skills]) =>
+                        (skills as string[]).map((skill, index) => (
+                          <span key={`${category}-${index}`} className="px-3 py-1 bg-[#DCD6F7]/30 text-[#4E4C67] rounded-full text-sm">
+                            {skill}
+                          </span>
+                        ))
+                      )}
                   </div>
+                </AccordionContent>
+              </AccordionItem>
 
-                  <div>
-                    <div className="font-medium mb-2">Tools & Platforms</div>
-                    <div className="flex flex-wrap gap-2">
-                      {(results.important_info.technical_skills?.design ?? []).map((tool, index) => (
-                        <span key={index} className="px-3 py-1 bg-[#A6B1E1]/30 text-[#4E4C67] rounded-full text-sm">
-                          {tool}
+              <AccordionItem value="languages">
+                <AccordionTrigger className="text-[#4E4C67]">
+                  <div className="flex items-center">
+                    <Languages className="h-5 w-5 mr-2" />
+                    Languages
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-wrap gap-2">
+                    {(results.important_info.languages ?? []).map((language, index) => (
+                      <span key={index} className="px-3 py-1 bg-[#A6B1E1]/30 text-[#4E4C67] rounded-full text-sm">
+                        {language}
+                      </span>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="licenses">
+                <AccordionTrigger className="text-[#4E4C67]">
+                  <div className="flex items-center">
+                    <Captions className="h-5 w-5 mr-2" />
+                    Licenses & Certifications
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-wrap gap-2">
+                  {(results.important_info.licenses ?? []).map((license, index) => {
+                      const text = typeof license === "string" ? license : license.license || "Unknown License"
+                      return (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-[#B4869F]/30 text-[#4E4C67] rounded-full text-sm"
+                        >
+                          {text}
                         </span>
-                      ))}
-                    </div>
+                      )
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -273,6 +339,26 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
             </div>
           </div>
         )}
+
+        {activeTab === "coverLetter" && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-[#4E4C67]">Generated Cover Letter</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="border-[#985F6F] text-[#985F6F] hover:bg-[#985F6F]/10"
+              >
+                Copy to Clipboard
+              </Button>
+            </div>
+            <div className="p-4 border border-gray-200 rounded-lg bg-white whitespace-pre-wrap text-gray-700 leading-relaxed">
+              {results.cover_letter}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

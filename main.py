@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from utils import extractTextFromFile, extractImportantInfo, convertJsonToDict, compareJobDescription
+from utils import extractTextFromFile, extractImportantInfo, convertJsonToDict, compareJobDescription, generateCoverLetter
 import json
 import tempfile
 import os
@@ -21,7 +21,7 @@ async def root():
     return {"message": "working"}
 
 @app.post("/get-assess")
-async def getTextFromPdf(job_description: str, file: UploadFile = File(...)):
+async def getTextFromPdf(job_description: str, sector: str, file: UploadFile = File(...)):
     try:
         # Create a temporary file to store the uploaded PDF
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
@@ -42,7 +42,7 @@ async def getTextFromPdf(job_description: str, file: UploadFile = File(...)):
             
             # get the important infos 
             all_text = " ".join(extracted_text.values())
-            important_info = extractImportantInfo(all_text)
+            important_info = extractImportantInfo(all_text, sector)
             
             # clean up the json string by removing markdown code and structure llm response
             cleaned_json = important_info.replace("```json", "").replace("```", "").strip()
@@ -52,6 +52,9 @@ async def getTextFromPdf(job_description: str, file: UploadFile = File(...)):
             
             # compare the job description and the important info
             comparison_dict = compareJobDescription(job_description, important_info_dict)
+            
+            # generate cover letter
+            cover_letter = generateCoverLetter(job_description, cleaned_json)
             
             # Check if we got an error response
             if comparison_dict.get("score") == "Error":
@@ -65,6 +68,7 @@ async def getTextFromPdf(job_description: str, file: UploadFile = File(...)):
                 "extraction_message": extraction_message,
                 "important_info": important_info_dict,
                 "score": comparison_dict.get("score"),
+                "cover_letter": cover_letter,
                 "improvements": comparison_dict.get("improvements", [])
             }
             
