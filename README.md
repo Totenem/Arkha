@@ -17,11 +17,6 @@
 
 ### LIVE: [ARKHA LIVE DEMO HERE](https://arkha-front.vercel.app/)
 
-### 🚀 Live Deployment Repositories
-
-- 🌐 **Frontend Repository:** [Arkha-Front](https://github.com/Totenem/Arkha-Front)
-- ⚙️ **Backend Repository:** [Arkha-Backend](https://github.com/Totenem/backend-arkha)
-
 ## ✨ Features
 
 ### Backend API
