@@ -26,8 +26,6 @@ export function ThemeProvider({
   children,
   defaultTheme = "light",
   attribute = "data-theme",
-  enableSystem = false,
-  disableTransitionOnChange = false,
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
 

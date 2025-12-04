@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Upload, FileText, X, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,14 +11,40 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ResultsDisplay from "@/components/results-display"
 
+type AnalysisResults = {
+  extraction_message: string
+  important_info: {
+    name: string
+    email: string
+    phone_number: string
+    education: Array<{
+      school: string
+      degree: string
+      duration: string
+      relevant_coursework?: string[]
+    }>
+    skills: string[]
+    languages: string[]
+    licenses: Array<string | { license: string }>
+    work_experience: Array<{
+      company: string
+      position: string
+      date: string
+      description: string[]
+    }>
+  }
+  score: string
+  cover_letter: string
+  improvements: string[]
+}
+
 export default function AnalyzePage() {
-  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState("")
   const [sector, setSector] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [results, setResults] = useState<any | null>(null)
+  const [results, setResults] = useState<AnalysisResults | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -88,8 +113,9 @@ export default function AnalyzePage() {
 
       const data = await response.json()
       setResults(data)
-    } catch (err: any) {
-      setError(err.message || "An error occurred during analysis")
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred during analysis"
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }

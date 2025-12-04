@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Award, Book, Briefcase, Captions, Languages, GraduationCap, Mail, Phone, Star, User, XCircle } from "lucide-react"
+import {Captions, Languages, Mail, Phone, Star, User, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
