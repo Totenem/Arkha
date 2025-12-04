@@ -101,7 +101,7 @@ export default function AnalyzePage() {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch(`http://localhost:8000/get-assess?job_description=${encodeURIComponent(jobDescription)}&sector=${encodeURIComponent(sector)}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-assess?job_description=${encodeURIComponent(jobDescription)}&sector=${encodeURIComponent(sector)}`, {
         method: "POST",
         body: formData,
       })
