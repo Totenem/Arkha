@@ -35,37 +35,6 @@ export default function Footer() {
                   Analyze Resume
                 </Link>
               </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-white">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-white">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="#" className="text-white/70 hover:text-white">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-white">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-white/70 hover:text-white">
-                  Cookie Policy
-                </Link>
-              </li>
             </ul>
           </div>
         </div>

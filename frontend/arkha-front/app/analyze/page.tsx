@@ -169,8 +169,10 @@ export default function AnalyzePage() {
                   <label htmlFor="job-description" className="block text-sm font-medium text-[#4E4C67] mb-2">
                     Job Description
                   </label>
+                  <p className="text-sm text-gray-500 mb-2">Maximum length: 3000 characters</p>
                   <Textarea
                     id="job-description"
+                    maxLength={3000}
                     placeholder="Paste the job description here..."
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}

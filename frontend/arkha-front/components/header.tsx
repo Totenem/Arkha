@@ -26,9 +26,9 @@ export default function Header() {
             <Link href="/analyze" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
               Analyze
             </Link>
-            <Link href="#" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
+            {/* <Link href="#" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
               About
-            </Link>
+            </Link> */}
             <Button asChild className="bg-[#985F6F] hover:bg-[#B4869F] text-white">
               <Link href="/analyze">Get Started</Link>
             </Button>

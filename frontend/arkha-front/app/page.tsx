@@ -24,9 +24,6 @@ export default function Home() {
                 Analyze Resume <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="outline" size="lg" className="border-[#4E4C67] text-[#4E4C67] hover:bg-[#4E4C67]/10">
-              Learn More
-            </Button>
           </div>
         </div>
 
