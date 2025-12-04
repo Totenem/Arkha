@@ -1,4 +1,5 @@
 import { FileText, ListFilter, Percent, Lightbulb } from "lucide-react"
+import React from "react"
 
 interface FeatureCardProps {
   title: string
@@ -8,7 +9,7 @@ interface FeatureCardProps {
 }
 
 export default function FeatureCard({ title, description, icon, color }: FeatureCardProps) {
-  const getIcon = (): JSX.Element => {
+  const getIcon = (): React.ReactNode => {
     const props = { className: "h-6 w-6", style: { color: "white" } }
 
     switch (icon) {
