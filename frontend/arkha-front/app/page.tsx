@@ -44,7 +44,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-[#4E4C67] mb-2">Upload Resume</h3>
               <p className="text-[#4E4C67]/70">
-                Upload your resume PDF and paste the job description you're applying for.
+                Upload your resume PDF and paste the job description you are applying for.
               </p>
             </div>
 
