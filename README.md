@@ -15,7 +15,7 @@
 
 > **Arkha** is a modern, full-stack web application that helps job seekers optimize their resumes and cover letters. Built with ❤️ using FastAPI, React, and Groq's AI capabilities, it provides real-time resume analysis, job matching, improvement suggestions, and cover letter generation to help users land their dream jobs.
 
-### LIVE: [ARKHA LIVE DEMO HERE](https://arkha-front.vercel.app/)
+### LIVE: [ARKHA LIVE DEMO HERE](https://arkha-sepia.vercel.app/)
 
 ## ✨ Features
 
