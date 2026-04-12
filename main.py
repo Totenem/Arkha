@@ -1,11 +1,17 @@
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from utils import extractTextFromFile, extractImportantInfo, convertJsonToDict, compareJobDescription, generateCoverLetter
 import json
 import tempfile
 import os
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add CORS middleware
 app.add_middleware(
@@ -21,7 +27,8 @@ async def root():
     return {"message": "working"}
 
 @app.post("/get-assess")
-async def getTextFromPdf(job_description: str, sector: str, file: UploadFile = File(...)):
+@limiter.limit("10/minute")
+async def getTextFromPdf(request: Request, job_description: str, sector: str, file: UploadFile = File(...)):
     try:
         # Create a temporary file to store the uploaded PDF
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:

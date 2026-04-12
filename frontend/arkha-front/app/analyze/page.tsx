@@ -10,6 +10,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ResultsDisplay from "@/components/results-display"
+import {
+  ErrorModal,
+  errorPayloadFromResponse,
+  errorPayloadFromUnknown,
+} from "@/components/error-modal"
 
 type AnalysisResults = {
   extraction_message: string
@@ -44,6 +49,7 @@ export default function AnalyzePage() {
   const [sector, setSector] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [modalError, setModalError] = useState<{ code: string; details: string } | null>(null)
   const [results, setResults] = useState<AnalysisResults | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +102,7 @@ export default function AnalyzePage() {
 
     setIsLoading(true)
     setError(null)
+    setModalError(null)
 
     try {
       const formData = new FormData()
@@ -107,15 +114,14 @@ export default function AnalyzePage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to analyze resume")
+        setModalError(await errorPayloadFromResponse(response))
+        return
       }
 
       const data = await response.json()
       setResults(data)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred during analysis"
-      setError(errorMessage)
+      setModalError(errorPayloadFromUnknown(err, "An error occurred during analysis"))
     } finally {
       setIsLoading(false)
     }
@@ -126,6 +132,7 @@ export default function AnalyzePage() {
     setJobDescription("")
     setResults(null)
     setError(null)
+    setModalError(null)
   }
 
   return (
@@ -269,6 +276,13 @@ export default function AnalyzePage() {
       </main>
 
       <Footer />
+
+      <ErrorModal
+        open={modalError !== null}
+        onClose={() => setModalError(null)}
+        code={modalError?.code ?? ""}
+        details={modalError?.details ?? ""}
+      />
     </div>
   )
 }
