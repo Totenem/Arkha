@@ -57,7 +57,6 @@ type AnalyzeTarget = {
 
 export default function FindJobsPage() {
   const [keyword, setKeyword] = useState("")
-  const [skillTags, setSkillTags] = useState("")
   const [fullTime, setFullTime] = useState(true)
   const [partTime, setPartTime] = useState(true)
   const [gig, setGig] = useState(true)
@@ -76,7 +75,6 @@ export default function FindJobsPage() {
     try {
       const body = {
         keyword,
-        skill_tags: skillTags,
         gig,
         part_time: partTime,
         full_time: fullTime,
