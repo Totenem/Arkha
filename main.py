@@ -1,9 +1,12 @@
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, Request, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from service.jobs import search_for_ads_job
+from service.onlinejobsph import search_onlinejobsph, get_onlinejobsph_job
 from utils import extractTextFromFile, extractImportantInfo, convertJsonToDict, compareJobDescription, generateCoverLetter
+from models.input import JobSearchInput, OnlineJobsSearchInput
 import json
 import tempfile
 import os
@@ -88,3 +91,28 @@ async def getTextFromPdf(request: Request, job_description: str, sector: str, fi
         return { 
             "error": f"An unexpected error occurred: {str(e)}"
         }
+
+
+# @app.post("/search-jobs")
+# async def searchJobs(search_data: JobSearchInput):
+#     try:
+#         job_json = await search_for_ads_job(search_data)
+#         return job_json
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+@app.post("/search-ojph")
+@limiter.limit("100/minute")
+async def searchOnlineJobsPH(request: Request, search_data: OnlineJobsSearchInput):
+    try:
+        return await search_onlinejobsph(search_data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+@app.get("/ojph-job/{job_id}")
+@limiter.limit("100/minute")
+async def getOnlineJobsPHJob(request: Request, job_id: str):
+    try:
+        return await get_onlinejobsph_job(job_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")

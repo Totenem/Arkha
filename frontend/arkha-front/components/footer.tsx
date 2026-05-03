@@ -35,6 +35,11 @@ export default function Footer() {
                   Analyze Resume
                 </Link>
               </li>
+              <li>
+                <Link href="/find-jobs" className="text-white/70 hover:text-white">
+                  Find Jobs
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

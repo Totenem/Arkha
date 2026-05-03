@@ -24,11 +24,11 @@ export default function Header() {
               Home
             </Link>
             <Link href="/analyze" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
-              Analyze
+              Analyze Resume
             </Link>
-            {/* <Link href="#" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
-              About
-            </Link> */}
+            <Link href="/find-jobs" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
+              Find Jobs
+            </Link>
             <Button asChild className="bg-[#985F6F] hover:bg-[#B4869F] text-white">
               <Link href="/analyze">Get Started</Link>
             </Button>
@@ -66,11 +66,11 @@ export default function Header() {
               Analyze
             </Link>
             <Link
-              href="#"
+              href="/find-jobs"
               className="block px-3 py-2 rounded-md text-base font-medium text-[#4E4C67] hover:bg-[#DCD6F7]/20"
               onClick={() => setMobileMenuOpen(false)}
             >
-              About
+              Find Jobs
             </Link>
             <div className="px-3 py-2">
               <Button asChild className="w-full bg-[#985F6F] hover:bg-[#B4869F] text-white">
