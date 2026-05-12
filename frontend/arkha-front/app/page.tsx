@@ -1,11 +1,6 @@
 import Link from "next/link"
 import {
   ArrowRight,
-  FileText,
-  BarChart2,
-  BrainCircuit,
-  FileDown,
-  CheckCircle2,
   Search,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
