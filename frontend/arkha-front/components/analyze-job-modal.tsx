@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import ResultsDisplay from "@/components/results-display"
 import { errorPayloadFromResponse, errorPayloadFromUnknown } from "@/components/error-modal"
+import { useAuth } from "@/context/AuthContext"
+import OptimizeResumeModal from "@/components/optimize-resume-modal"
 
 type AnalysisResults = {
   extraction_message: string
@@ -23,6 +25,7 @@ type AnalysisResults = {
   score: string
   cover_letter: string
   improvements: string[]
+  resume_details: Record<string, string>
 }
 
 type AnalyzeJobModalProps = {
@@ -40,11 +43,13 @@ export default function AnalyzeJobModal({
   companyName,
   jobDescription,
 }: AnalyzeJobModalProps) {
+  const { session } = useAuth()
   const [file, setFile] = useState<File | null>(null)
   const [sector, setSector] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<AnalysisResults | null>(null)
+  const [optimizeOpen, setOptimizeOpen] = useState(false)
 
   if (!open) return null
 
@@ -87,7 +92,11 @@ export default function AnalyzeJobModal({
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/get-assess?job_description=${encodeURIComponent(jobDescription)}&sector=${encodeURIComponent(sector)}`,
-        { method: "POST", body: formData }
+        {
+          method: "POST",
+          headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+          body: formData,
+        }
       )
 
       if (!response.ok) {
@@ -110,10 +119,12 @@ export default function AnalyzeJobModal({
     setSector("")
     setError(null)
     setResults(null)
+    setOptimizeOpen(false)
     onClose()
   }
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={handleClose}
@@ -258,7 +269,7 @@ export default function AnalyzeJobModal({
         ) : (
           <div>
             <ResultsDisplay results={results} />
-            <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
+            <div className="p-6 border-t border-gray-100 flex flex-wrap justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => setResults(null)}
@@ -267,8 +278,15 @@ export default function AnalyzeJobModal({
                 Try Again
               </Button>
               <Button
-                onClick={handleClose}
+                onClick={() => setOptimizeOpen(true)}
                 className="bg-[#985F6F] hover:bg-[#B4869F] text-white"
+              >
+                Optimize Resume
+              </Button>
+              <Button
+                onClick={handleClose}
+                variant="outline"
+                className="border-gray-300 text-gray-600 hover:bg-gray-50"
               >
                 Close
               </Button>
@@ -277,5 +295,16 @@ export default function AnalyzeJobModal({
         )}
       </div>
     </div>
+
+    {results && (
+      <OptimizeResumeModal
+        open={optimizeOpen}
+        onClose={() => setOptimizeOpen(false)}
+        assessResults={results as unknown as Record<string, unknown>}
+        resumeDetails={results.resume_details}
+        jobDescription={jobDescription}
+      />
+    )}
+    </>
   )
 }

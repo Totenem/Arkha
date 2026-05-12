@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Any, Dict, Optional
 
 class JobSearchInput(BaseModel):
     what: str
@@ -18,3 +18,8 @@ class OnlineJobsSearchInput(BaseModel):
     part_time: bool = True
     full_time: bool = True
     page: int = 1
+
+class TailorResumeInput(BaseModel):
+    assess_results: Dict[str, Any]   # full response from /get-assess
+    resume_details: Dict[str, Any]   # page-keyed text extracted from the PDF
+    job_description: str

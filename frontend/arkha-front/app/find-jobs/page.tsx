@@ -9,9 +9,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Briefcase,
   Clock,
   DollarSign,
+  Eye,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
@@ -19,6 +19,7 @@ import Footer from "@/components/footer"
 import AnalyzeJobModal from "@/components/analyze-job-modal"
 import ViewJobDetailsModal from "@/components/view-job-details-modal"
 import { ErrorModal, errorPayloadFromResponse, errorPayloadFromUnknown } from "@/components/error-modal"
+import AuthGuard from "@/components/auth-guard"
 
 type JobDetails = {
   job_id: string
@@ -155,6 +156,7 @@ export default function FindJobsPage() {
   const totalPages = results?.total ? Math.ceil(results.total / 30) : 0
 
   return (
+    <AuthGuard>
     <div className="min-h-screen flex flex-col bg-[#F8F8FC]">
       <Header />
 
@@ -254,9 +256,8 @@ export default function FindJobsPage() {
               <div className="space-y-4">
                 {results.jobs.map((job) => (
                   <div
-                    onClick={() => viewDetails(job.job_id)}
                     key={job.job_id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-500 p-5 hover:shadow-md transition-shadow cursor-pointer "
+                    className="bg-white rounded-xl shadow-sm border border-gray-500 p-5 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-3 mb-1">
                       <h2 className="text-lg font-semibold text-[#4E4C67]">{job.title}</h2>
@@ -316,6 +317,14 @@ export default function FindJobsPage() {
                       >
                         <BrainCircuit className="h-3.5 w-3.5 mr-1.5" />
                         Analyze
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-gray-300 text-gray-600 hover:bg-gray-50 text-sm px-5 ml-auto"
+                        onClick={() => viewDetails(job.job_id)}
+                      >
+                        <Eye className="h-3.5 w-3.5 mr-1.5" />
+                        View Details
                       </Button>
                     </div>
                   </div>
@@ -392,5 +401,6 @@ export default function FindJobsPage() {
         details={modalError?.details ?? ""}
       />
     </div>
+    </AuthGuard>
   )
 }

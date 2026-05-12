@@ -3,18 +3,18 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Upload, FileText, X, AlertCircle, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Upload, FileText, X, AlertCircle, Loader2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useAuth } from "@/context/AuthContext"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import ResultsDisplay from "@/components/results-display"
-import {
-  ErrorModal,
-  errorPayloadFromResponse,
-  errorPayloadFromUnknown,
-} from "@/components/error-modal"
+import OptimizeResumeModal from "@/components/optimize-resume-modal"
+import { ErrorModal, errorPayloadFromResponse, errorPayloadFromUnknown } from "@/components/error-modal"
+import AuthGuard from "@/components/auth-guard"
 
 type AnalysisResults = {
   extraction_message: string
@@ -41,16 +41,22 @@ type AnalysisResults = {
   score: string
   cover_letter: string
   improvements: string[]
+  resume_details: Record<string, string>
 }
 
 export default function AnalyzePage() {
+  const router = useRouter()
+  const { session, loading: authLoading } = useAuth()
+
   const [file, setFile] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState("")
   const [sector, setSector] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [limitError, setLimitError] = useState<string | null>(null)
   const [modalError, setModalError] = useState<{ code: string; details: string } | null>(null)
   const [results, setResults] = useState<AnalysisResults | null>(null)
+  const [optimizeOpen, setOptimizeOpen] = useState(false)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -65,9 +71,7 @@ export default function AnalyzePage() {
     }
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault()
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -85,33 +89,43 @@ export default function AnalyzePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!file) {
-      setError("Please upload a resume PDF")
+    if (!session) {
+      router.push("/auth/login")
       return
     }
 
-    if (!jobDescription.trim()) {
-      setError("Please enter a job description")
-      return
-    }
-
-    if (!sector) {
-      setError("Please select a job sector")
-      return
-    }
+    if (!file) { setError("Please upload a resume PDF"); return }
+    if (!jobDescription.trim()) { setError("Please enter a job description"); return }
+    if (!sector) { setError("Please select a job sector"); return }
 
     setIsLoading(true)
     setError(null)
+    setLimitError(null)
     setModalError(null)
 
     try {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-assess?job_description=${encodeURIComponent(jobDescription)}&sector=${encodeURIComponent(sector)}`, {
-        method: "POST",
-        body: formData,
-      })
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/get-assess?job_description=${encodeURIComponent(jobDescription)}&sector=${encodeURIComponent(sector)}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: formData,
+        }
+      )
+
+      if (response.status === 401) {
+        router.push("/auth/login")
+        return
+      }
+
+      if (response.status === 429) {
+        const data = await response.json().catch(() => ({}))
+        setLimitError(data.detail ?? "You've reached your monthly limit. It resets on the 1st.")
+        return
+      }
 
       if (!response.ok) {
         setModalError(await errorPayloadFromResponse(response))
@@ -132,16 +146,29 @@ export default function AnalyzePage() {
     setJobDescription("")
     setResults(null)
     setError(null)
+    setLimitError(null)
     setModalError(null)
   }
 
   return (
+    <AuthGuard>
     <div className="min-h-screen flex flex-col bg-[#F8F8FC]">
       <Header />
 
       <main className="flex-grow py-10 px-4 md:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold text-[#4E4C67] mb-6 text-center">Resume Analysis</h1>
+
+          {/* Monthly limit banner */}
+          {limitError && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+              <RefreshCw className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-amber-800">Monthly limit reached</p>
+                <p className="text-sm text-amber-700 mt-0.5">{limitError}</p>
+              </div>
+            </div>
+          )}
 
           {!results ? (
             <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
@@ -163,24 +190,14 @@ export default function AnalyzePage() {
                     onDrop={handleDrop}
                     onClick={() => document.getElementById("resume-upload")?.click()}
                   >
-                    <input
-                      id="resume-upload"
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-
+                    <input id="resume-upload" type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
                     {file ? (
                       <div className="flex items-center justify-center gap-2">
                         <FileText className="h-6 w-6 text-[#4E4C67]" />
                         <span className="text-[#4E4C67] font-medium">{file.name}</span>
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setFile(null)
-                          }}
+                          onClick={(e) => { e.stopPropagation(); setFile(null) }}
                           className="ml-2 p-1 rounded-full bg-[#4E4C67]/10 hover:bg-[#4E4C67]/20"
                         >
                           <X className="h-4 w-4 text-[#4E4C67]" />
@@ -243,7 +260,7 @@ export default function AnalyzePage() {
                 <div className="flex justify-center">
                   <Button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || authLoading}
                     className="bg-[#985F6F] hover:bg-[#B4869F] text-white px-8 py-2"
                   >
                     {isLoading ? (
@@ -261,11 +278,17 @@ export default function AnalyzePage() {
           ) : (
             <div className="bg-white rounded-xl shadow-md">
               <ResultsDisplay results={results} />
-              <div className="p-6 border-t border-gray-100 flex justify-center">
+              <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row justify-center gap-3">
+                <Button
+                  onClick={() => setOptimizeOpen(true)}
+                  className="bg-[#985F6F] hover:bg-[#B4869F] text-white px-6"
+                >
+                  Optimize Resume
+                </Button>
                 <Button
                   onClick={resetForm}
                   variant="outline"
-                  className="border-[#4E4C67] text-[#4E4C67] hover:bg-[#4E4C67]/10"
+                  className="border-[#4E4C67] text-[#4E4C67] hover:bg-[#4E4C67]/10 px-6"
                 >
                   Analyze Another Resume
                 </Button>
@@ -283,6 +306,17 @@ export default function AnalyzePage() {
         code={modalError?.code ?? ""}
         details={modalError?.details ?? ""}
       />
+
+      {results && (
+        <OptimizeResumeModal
+          open={optimizeOpen}
+          onClose={() => setOptimizeOpen(false)}
+          assessResults={results as unknown as Record<string, unknown>}
+          resumeDetails={results.resume_details}
+          jobDescription={jobDescription}
+        />
+      )}
     </div>
+    </AuthGuard>
   )
 }
