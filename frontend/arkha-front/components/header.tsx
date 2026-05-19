@@ -46,6 +46,9 @@ export default function Header() {
             <Link href="/find-jobs" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
               Find Jobs
             </Link>
+            <Link href="/blogs" className="text-[#4E4C67]/80 hover:text-[#4E4C67] font-medium">
+              Blog
+            </Link>
 
             {!loading && (
               user ? (
@@ -157,6 +160,13 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Find Jobs
+            </Link>
+            <Link
+              href="/blogs"
+              className="block px-3 py-2 rounded-md text-base font-medium text-[#4E4C67] hover:bg-[#DCD6F7]/20"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Blog
             </Link>
 
             <div className="px-3 py-2 space-y-2">

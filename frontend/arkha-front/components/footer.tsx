@@ -40,6 +40,11 @@ export default function Footer() {
                   Find Jobs
                 </Link>
               </li>
+              <li>
+                <Link href="/blogs" className="text-white/70 hover:text-white">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

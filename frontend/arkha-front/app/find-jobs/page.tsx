@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Search,
   ExternalLink,
@@ -21,6 +21,7 @@ import AnalyzeJobModal from "@/components/analyze-job-modal"
 import ViewJobDetailsModal from "@/components/view-job-details-modal"
 import { ErrorModal, errorPayloadFromResponse, errorPayloadFromUnknown } from "@/components/error-modal"
 import AuthGuard from "@/components/auth-guard"
+import { supabase } from "@/lib/supabase"
 
 type JobDetails = {
   job_id: string
@@ -66,15 +67,32 @@ export default function FindJobsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [results, setResults] = useState<JobSearchResponse | null>(null)
+  const [curatedJobs, setCuratedJobs] = useState<Job[]>([])
   const [modalError, setModalError] = useState<{ code: string; details: string } | null>(null)
   const [analyzeTarget, setAnalyzeTarget] = useState<AnalyzeTarget | null>(null)
   const [jobDetails, setJobDetails] = useState<JobDetails | null>(null)
+
+  useEffect(() => {
+    fetchCuratedJobs("")
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const fetchCuratedJobs = async (kw: string) => {
+    let query = supabase.from("jobs").select("*").order("created_at", { ascending: false })
+    if (kw) {
+      query = query.or(`title.ilike.%${kw}%,description.ilike.%${kw}%`)
+    }
+    const { data } = await query
+    setCuratedJobs((data ?? []) as Job[])
+  }
 
   const doSearch = async (targetPage: number) => {
     setIsLoading(true)
     setResults(null)
 
     try {
+      await fetchCuratedJobs(keyword)
+
       const body = {
         keyword,
         gig,
@@ -240,10 +258,10 @@ export default function FindJobsPage() {
             <>
               <div className="flex items-center justify-between mb-6">
                 <p className="text-sm text-gray-600">
-                  {results.total != null && (
+                  {(results.total != null || curatedJobs.length > 0) && (
                     <>
                       <span className="font-semibold text-[#4E4C67]">
-                        {results.total.toLocaleString()}
+                        {((results.total ?? 0) + curatedJobs.length).toLocaleString()}
                       </span>{" "}
                       jobs found
                     </>
@@ -255,7 +273,7 @@ export default function FindJobsPage() {
               </div>
 
               <div className="space-y-4">
-                {results.jobs.map((job) => (
+                {[...curatedJobs, ...results.jobs].map((job) => (
                   <div
                     key={job.job_id}
                     className="bg-white rounded-xl shadow-sm border border-gray-500 p-5 hover:shadow-md transition-shadow"
@@ -367,7 +385,69 @@ export default function FindJobsPage() {
             </>
           )}
 
-          {!isLoading && !hasSearched && (
+          {!isLoading && !hasSearched && curatedJobs.length > 0 && (
+            <>
+              <p className="text-sm text-gray-600 mb-6">
+                <span className="font-semibold text-[#4E4C67]">{curatedJobs.length}</span> curated job{curatedJobs.length !== 1 ? "s" : ""} available
+              </p>
+              <div className="space-y-4">
+                {curatedJobs.map((job) => (
+                  <div
+                    key={job.job_id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-500 p-5 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <h2 className="text-lg font-semibold text-[#4E4C67]">{job.title}</h2>
+                      {job.job_type && (
+                        <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium ${jobTypeBadgeColor(job.job_type)}`}>
+                          {job.job_type}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 mb-3">
+                      {job.salary && (
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="h-3.5 w-3.5 shrink-0" />
+                          {job.salary}
+                        </span>
+                      )}
+                      {job.posted_at && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5 shrink-0" />
+                          {formatDate(job.posted_at)}
+                        </span>
+                      )}
+                    </div>
+                    {job.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {job.skills.map((skill) => (
+                          <span key={skill} className="px-2.5 py-1 bg-[#DCD6F7]/40 text-[#4E4C67] rounded-full text-xs font-medium">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{job.description}</p>
+                    <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-50">
+                      <button className="bg-[#4E4C67] hover:bg-[#4E4C67]/80 text-white text-sm px-5 py-2 rounded-md flex items-center" onClick={() => window.open(job.url, "_blank")}>
+                        <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                        Apply
+                      </button>
+                      <button
+                        className="border border-[#985F6F] text-[#985F6F] hover:bg-[#985F6F]/10 text-sm px-5 py-2 rounded-md flex items-center"
+                        onClick={() => setAnalyzeTarget({ title: job.title, description: job.description })}
+                      >
+                        <BrainCircuit className="h-3.5 w-3.5 mr-1.5" />
+                        Analyze
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {!isLoading && !hasSearched && curatedJobs.length === 0 && (
             <div className="text-center py-20">
               <Search className="h-14 w-14 mx-auto mb-4 text-gray-200" />
               <p className="text-base font-medium text-gray-400">Search for jobs above to get started</p>
